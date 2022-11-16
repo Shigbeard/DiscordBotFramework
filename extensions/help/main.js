@@ -12,7 +12,11 @@ class Help extends Extension {
      * @param {Bot} bot - The bot object
      */
     constructor(bot){
+        if (!bot) {
+            throw new Error('Bot object is required');
+        }
         super(bot);
+        this._bot = bot;
         this._name = 'Help';
         this._description = 'Provides help for commands';
         this._version = '1.0.0';
@@ -47,6 +51,9 @@ class Help extends Extension {
     }
 
     setup(bot) {
+        if (!bot) {
+            throw new Error('For some fucking reason, the bot object doesnt exist... how the fuck did we get here then?!?!?!??!?!?!?');
+        }
         try {
             this.setupCommands();
             return true

@@ -78,7 +78,6 @@ function InterpretIntents() {
                 if (intentsArr.length == 1) {
                     for (let ii in GatewayIntentBits) {
                         if (typeof GatewayIntentBits[ii] == 'number') { intents += GatewayIntentBits[ii]; }
-                        console.log(ii);
                     }
                 } else {
                     throw new Error('ALL cannot be used with other intents');

@@ -44,6 +44,7 @@ class Bot {
 
                 if (!command) {
                     this.error(`No command mathcing ${interaction.commandName} found.`);
+                    interaction.reply({ content: 'That command does not exist!', ephemeral: true });
                     return;
                 }
                 
@@ -154,7 +155,7 @@ class Bot {
                             if (main) {
                                 var extension = main(this);
                                 if (extension) {
-                                    this._extensions.push(extension);
+                                    this._extensions.set(extension.name, extension);
                                     this.log(`Loaded extension ${ext.name}`);
                                 } else {
                                     this.error(`Failed to load extension ${ext.name}`);

@@ -19,6 +19,10 @@ export default class Extension {
         this._schedules = new Collection();
     }
 
+    get name() {
+        return this._name;
+    }
+
     setup() {
         this._bot.log('Extension setup');
     }
