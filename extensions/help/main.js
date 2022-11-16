@@ -42,10 +42,10 @@ class Help extends Extension {
     }
 
     
-    async help(interaction) {
-        var out = '';
-        for (let c in this._bot.commands) {
-            out += `/${c.name}: ${c.description}\n`;
+    async help(interaction,bot) {
+        var out = 'Help \n';
+        for (let [_,v] in bot.commands) {
+            out += `/${v.name}: ${v.description}\n`;
         }
         await interaction.reply({ content: out, ephemeral: true });
     }

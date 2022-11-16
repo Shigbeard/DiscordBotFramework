@@ -52,7 +52,7 @@ class Bot {
                     let cooldown = command.cooldowns.get(interaction.user.id)
                     if (cooldown) {
                         if (cooldown > Date.now()) {
-                            await command.execute(interaction);
+                            await command.execute(interaction, this);
                             if (command.cooldown > 0) {
                                 command.cooldowns.set(interaction.user.id, Date.now() + command.cooldown);
                             }
@@ -60,7 +60,7 @@ class Bot {
                             await interaction.reply({ content: `Please wait ${Math.round((cooldown - Date.now()) / 1000)} seconds before using this command again.`, ephemeral: true });
                         }
                     } else {
-                        await command.execute(interaction);
+                        await command.execute(interaction, this);
                         if (command.cooldown > 0) {
                             command.cooldowns.set(interaction.user.id, Date.now() + command.cooldown);
                         }
@@ -81,7 +81,14 @@ class Bot {
                     }
                 });
             }
-
+            // sleep for 3 seconds
+            setTimeout(() => {
+                // register commands
+                this.updateCommands();
+                for (guild in this._client.guilds.cache) {
+                    this.updateCommands(guild);
+                }
+            }, 3000);
             // process.nextTick(this.think);
         }); 
     }
@@ -181,7 +188,6 @@ class Bot {
         if (command instanceof Command) {
             this._commands.set(command.name, command);
             this.log(`Registered command ${command.name}`);
-            this.updateCommands();
         } else {
             this.error('Invalid command');
         }
@@ -189,11 +195,11 @@ class Bot {
 
     updateCommands(guild=null) {
         let commands = [];
-        for (let c of this._commands) {
-            if (c.guildOnly == false && guild == null) {
-                commands.push(c.command.toJSON());
-            } else if (c.guildOnly == true && guild != null) {
-                commands.push(c.command.toJSON());
+        for (let [_,v] of this._commands) {
+            if (v.guildOnly == false && guild == null) {
+                commands.push(v.command.toJSON());
+            } else if (v.guildOnly == true && guild != null) {
+                commands.push(v.command.toJSON());
             }
         }
         let rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
@@ -217,7 +223,7 @@ class Bot {
             } catch (error) {
                 this.error(error);
             }
-        })
+        })();
     }
     
     _isValidExtensionJSON(json) {
