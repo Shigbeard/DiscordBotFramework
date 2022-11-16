@@ -1,0 +1,19 @@
+{
+  "name": "updated_discordbot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/shigbeard/DiscordBotFramework.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Shigbeard <shigbeard@triumphtf2.com>",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "discord.js": "^14.6.0",
+    "dotenv": "^16.0.3"
+  }
+}

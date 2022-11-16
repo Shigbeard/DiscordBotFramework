@@ -1,0 +1,12 @@
+{
+    "name": "Help",
+    "author": {
+        "name": "Shigbeard",
+        "email": "shigbeard@triumphtf2.com",
+        "url": "https://www.triumphtf2.com",
+        "discordID": 136264506933248000
+    },
+    "description": "Reads imported extensions and returns help text.",
+    "version": "1.0.0",
+    "entrypoint": "main.js"
+}
