@@ -52,7 +52,7 @@ class Bot {
                     let cooldown = command.cooldowns.get(interaction.user.id)
                     if (cooldown) {
                         if (cooldown > Date.now()) {
-                            await command.execute(interaction, this);
+                            await command.execute(interaction);
                             if (command.cooldown > 0) {
                                 command.cooldowns.set(interaction.user.id, Date.now() + command.cooldown);
                             }
@@ -60,7 +60,7 @@ class Bot {
                             await interaction.reply({ content: `Please wait ${Math.round((cooldown - Date.now()) / 1000)} seconds before using this command again.`, ephemeral: true });
                         }
                     } else {
-                        await command.execute(interaction, this);
+                        await command.execute(interaction);
                         if (command.cooldown > 0) {
                             command.cooldowns.set(interaction.user.id, Date.now() + command.cooldown);
                         }

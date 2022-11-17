@@ -42,23 +42,24 @@ class Help extends Extension {
     }
 
     
-    async help(interaction,bot) {
+    async help(interaction) {
+        var l = this._bot.commands.length;
         var out = 'Help \n';
-        for (let [_,v] in bot.commands) {
+        for (let [_,v] in this._bot.commands) {
             out += `/${v.name}: ${v.description}\n`;
         }
         await interaction.reply({ content: out, ephemeral: true });
     }
 
-    setup(bot) {
-        if (!bot) {
+    setup() {
+        if (!this._bot) {
             throw new Error('For some fucking reason, the bot object doesnt exist... how the fuck did we get here then?!?!?!??!?!?!?');
         }
         try {
             this.setupCommands();
             return true
         } catch (error) {
-            bot.error(error);
+            this._bot.error(error);
             return false
         }
     }
@@ -80,5 +81,5 @@ class Help extends Extension {
 
 module.exports = function(bot) {
     var help = new Help(bot);
-    return help.setup(bot);
+    return help.setup();
 }
