@@ -1,0 +1,12 @@
+{
+    "name": "GSinfo",
+    "author": {
+        "name": "Shigbeard",
+        "email": "shigbeard@triumphtf2.com",
+        "url": "https://www.triumphtf2.com",
+        "discordID": 136264506933248000
+    },
+    "description": "Returns game info for Source Engine games",
+    "version": "1.0.0",
+    "entrypoint": "main.js"
+}

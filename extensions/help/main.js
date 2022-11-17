@@ -1,4 +1,4 @@
-const { Client, Events, GatewayIntentBits, Collection } = require('discord.js');
+const { Client, Events, GatewayIntentBits, Collection, EmbedBuilder } = require('discord.js');
 const Extension = require('../../core/command');
 const Command = require('../../core/command.js');
 const Bot = require('../../core/bot.js');
@@ -24,18 +24,34 @@ class Help extends Extension {
     }
 
     setupCommands() {
-        let help = new Command({
+        let help = new Command(this._bot, {
             name: 'help',
             description: 'Provides help for commands',
             version: '1.0.0',
             author: 'Shigbeard',
             guildOnly: false,
+            usage: {
+                command: 'help',
+                options: [
+                    {
+                        name: 'command',
+                        description: 'The command to get help for',
+                        type: 'STRING',
+                        required: false
+                    }
+                ]
+            },
             permissions: [],
             cooldown: 0
         });
         help.command
             .setName(help.name)
-            .setDescription(help.description);
+            .setDescription(help.description)
+            .addStringOption(option => 
+                option
+                    .setName('command')
+                    .setDescription('The command to get help for')
+            );
         help.execute = this.help;
         this._bot.registerCommand(help);
 
@@ -43,12 +59,40 @@ class Help extends Extension {
 
     
     async help(interaction) {
-        var l = this._bot.commands.length;
-        var out = 'Help \n';
-        for (let [_,v] in this._bot.commands) {
-            out += `/${v.name}: ${v.description}\n`;
+        let command = interaction.options.getString('command');
+        if (command) {
+            let cmd = this._bot.commands.get(command);
+            if (cmd) {
+                let usage = ""
+                if (cmd.usage) {
+                    usage += `/${cmd.usage.command}`;
+                    if (cmd.usage.options) {
+                        cmd.usage.options.forEach(option => {
+                            usage += ` ${option.required ? '<' : '['}${option.name} (${option.type})${option.default ? !null : `=${option.default}`}${option.required ? '>' : ']'}`;
+                        })
+                    }
+                }
+                let embed = new EmbedBuilder()
+                    .setTitle(cmd.name)
+                    .setDescription(cmd.description)
+                    .addFields(
+                        { name: 'Version', value: cmd.version, inline: true },
+                        { name: 'Author', value: cmd.author, inline: true },
+                        { name: 'Usage', value: usage, inline: false }
+                    )
+                interaction.reply({embeds: [embed], ephemeral: true});
+            } else {
+                interaction.reply({content: 'Command not found', ephemeral: true});
+            }
         }
-        await interaction.reply({ content: out, ephemeral: true });
+        if (!command) {
+            var l = this._bot.commands.size;        
+            var out = `Help (${l})\n`;
+            this._bot.commands.forEach(cmd => {
+                out += `/${cmd.name } - ${cmd.description}\n`;
+            });
+            await interaction.reply({ content: out, ephemeral: true });
+        }
     }
 
     setup() {
