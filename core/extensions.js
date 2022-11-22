@@ -24,6 +24,6 @@ export default class Extension {
     }
 
     setup() {
-        this._bot.log('Extension setup');
+        this._bot.logger.log('Extension setup');
     }
 }

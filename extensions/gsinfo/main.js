@@ -125,7 +125,7 @@ class GSInfo extends Extension {
             this.setupCommands();
             return true
         } catch (error) {
-            this._bot.log(error);
+            this._bot.logger.error(error);
             return false;
         }
     }

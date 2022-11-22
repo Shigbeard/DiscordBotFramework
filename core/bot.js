@@ -3,6 +3,7 @@ const Command = require('./command.js');
 const BotEvents = require('./events.js');
 // import { readdirSync } from 'fs';
 const { readdirSync } = require('fs');
+// const logger = require('pino');
 /**
  * Default class for a bot.
  * 
@@ -30,8 +31,14 @@ class Bot {
         this._commands = new Collection();
         this._events = new BotEvents();
         this._schedules = new Collection();
+        this._logger = require('pino')({
+            transport: {
+                target: 'pino-pretty'
+            },
+        });
         // Last think should be time now in milliseconds
         this._last_think = Date.now();
+
 
         this._client.once(Events.ClientReady, () => {
             this.log('Client ready, registering extensions');
@@ -132,18 +139,21 @@ class Bot {
         return this._events;
     }
 
-
+    get logger() {
+        return this._logger;
+    }
 
     debug(message) {
-        console.debug(message);
+        this._logger.debug(message);
     }
 
     log(message) {
-        console.log(message);
+        // console.log(this)
+        this._logger.info(message);
     }
 
     error(message) {
-        console.error(message);
+        this._logger.error(message);
     }
 
     _loadExtensions() {
