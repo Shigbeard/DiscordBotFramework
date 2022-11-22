@@ -1,5 +1,5 @@
 {
-    "name": "GSinfo",
+    "name": "gsinfo",
     "author": {
         "name": "Shigbeard",
         "email": "shigbeard@triumphtf2.com",
@@ -8,5 +8,7 @@
     },
     "description": "Returns game info for Source Engine games",
     "version": "1.0.0",
-    "entrypoint": "main.js"
+    "entrypoint": "main.js",
+    "dependencies": [],
+    "priority": 0
 }

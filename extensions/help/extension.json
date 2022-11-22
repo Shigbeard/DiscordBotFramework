@@ -1,5 +1,5 @@
 {
-    "name": "Help",
+    "name": "help",
     "author": {
         "name": "Shigbeard",
         "email": "shigbeard@triumphtf2.com",
@@ -8,5 +8,7 @@
     },
     "description": "Reads imported extensions and returns help text.",
     "version": "1.0.0",
-    "entrypoint": "main.js"
+    "entrypoint": "main.js",
+    "dependencies": [],
+    "priority": 0
 }

@@ -31,6 +31,7 @@ class Bot {
         this._commands = new Collection();
         this._events = new BotEvents();
         this._schedules = new Collection();
+        this._importedExtensionData = {};
         this._logger = require('pino')({
             transport: {
                 target: 'pino-pretty'
@@ -167,23 +168,24 @@ class Bot {
                     let valid = this._isValidExtensionJSON(ext);
                     if (valid) {
                         // try loading main.js
-                        try {
-                            var main = require(`../extensions/${exts[i].name}/${ext.entrypoint}`);
-                            if (main) {
-                                var extension = main(this);
-                                if (extension) {
-                                    this._extensions.set(extension.name, extension);
-                                    this.log(`Loaded extension ${ext.name}`);
-                                } else {
-                                    this.error(`Failed to load extension ${ext.name}`);
-                                }
-                            } else {
-                                this.error(`Failed to import extension ${ext.name}`);
-                            }
-                        } catch (e) {
-                            this.error(`Encountered error while trying to load ${ext.name}`);
-                            this.error(e.stack);
-                        }
+                        this._importedExtensionData[ext.name] = ext;
+                        // try {
+                        //     // var main = require(`../extensions/${exts[i].name}/${ext.entrypoint}`);
+                        //     // if (main) {
+                        //     //     var extension = main(this);
+                        //     //     if (extension) {
+                        //     //         this._extensions.set(extension.name, extension);
+                        //     //         this.log(`Loaded extension ${ext.name}`);
+                        //     //     } else {
+                        //     //         this.error(`Failed to load extension ${ext.name}`);
+                        //     //     }
+                        //     // } else {
+                        //     //     this.error(`Failed to import extension ${ext.name}`);
+                        //     // }
+                        // } catch (e) {
+                        //     this.error(`Encountered error while trying to load ${ext.name}`);
+                        //     this.error(e.stack);
+                        // }
                     } else {
                         this.error(`Invalid extension.json in /extensions/${exts[i].name}`);
                     }
@@ -191,6 +193,70 @@ class Bot {
                     this.error(`Failed to import extension.json in /extensions/${exts[i].name}`);
                 }
             }
+        }
+        // Sort extImports by priority
+        var sorted = Object.keys(this._importedExtensionData).sort((a, b) => {
+            return this._importedExtensionData[a].priority - this._importedExtensionData[b].priority;
+        });
+        for (var i = 0; i < sorted.length; i++) {
+            this._loadExtension(this._importedExtensionData[sorted[i]]);
+        }
+    }
+
+    _loadExtension(extensionData) {
+        // Has this extension been loaded already?
+        if (this._extensions.has(extensionData.name)) {
+            this.logger.warn(`Extension ${extensionData.name} has already been loaded! Skipping...`);
+            return;
+        }
+        var status = 0; // 0 means good
+        // Does this extension have any dependencies?
+        if (extensionData.dependencies != []) {
+
+            // see if we have these dependencies
+            extensionData.dependencies.forEach(j => {
+                if (!this._importedExtensionData[j]) {
+                    this.error(`Extension ${extensionData.name} has missing dependency ${extensionData.dependencies[j]}`);
+                    status = 1; // Missing one or more dependencies
+                } else {
+                    // have we loaded this dependency? if not, load it first.
+                    if (!this._extensions.get(j)) {
+                        var loaded = this._loadExtension(this._importedExtensionData[j]);
+                        if (loaded != true) {
+                            status = 2; // Dependency failed to load
+                            this.logger.error(`Extension ${extensionData.name} failed to load due to dependency ${j} failing to load`);
+                        } else {
+                            status = status != 0 ? 0 : status;
+                        }
+                    } else {
+                        status = status != 0 ? 0 : status;
+                    }
+                }
+            });
+        }
+        if (status == 0) {
+            try {
+                var main = require(`../extensions/${extensionData.name}/${extensionData.entrypoint}`);
+                if (main) {
+                    var extension = main(this);
+                    if (extension) {
+                        this._extensions.set(extension.name, extension);
+                        this.log(`Loaded extension ${extensionData.name}`);
+                        return true
+                    } else {
+                        this.error(`Failed to load extension ${extensionData.name}`);
+                        return false;
+                    }
+                } else {
+                    this.error(`Failed to import extension ${extensionData.name}`);
+                    return false;
+                }
+            } catch (e) {
+                this.error(`Encountered error while trying to load ${extensionData.name} \n ${e.stack}`);
+                return false;
+            }
+        } else {
+            return false;
         }
     }
 
